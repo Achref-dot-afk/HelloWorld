@@ -1,7 +1,7 @@
 pipeline {
 	
 	environment {
-    imagerepo = 'limarktest'
+    imagerepo = 'achref2h'
     imagename = 'nodejs-docker'
 	}
 
@@ -23,7 +23,7 @@ pipeline {
     
     stage('Push Docker Image to Docker Hub') {
       steps {
-        withDockerRegistry([ credentialsId: 'dockerID', url: '' ]) {
+        withDockerRegistry([ credentialsId: 'dockerID']) {
           sh "docker push ${imagerepo}/${imagename}:v${BUILD_NUMBER}"
         }
       }
@@ -39,7 +39,7 @@ pipeline {
     stage('Update Manifest') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'GitHubCredentials', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-          sh "rm -rf gitops-demo-deployment"
+          sh "rm -rf k8s"
           sh "git clone https://github.com/Achref-dot-afk/k8s.git"
           sh "cd k8s"
           dir('k8s') {
