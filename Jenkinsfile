@@ -8,7 +8,7 @@ pipeline {
 	agent any
 	
 	stages {
-	
+    
     stage('Build Docker Image') {
       steps {
         sh "docker build --no-cache . -t ${imagename}:v${BUILD_NUMBER}"
@@ -23,7 +23,7 @@ pipeline {
     
     stage('Push Docker Image to Docker Hub') {
       steps {
-        withDockerRegistry([ credentialsId: 'DockerHubCredentials', url: '' ]) {
+        withDockerRegistry([ credentialsId: 'dockerID', url: '' ]) {
           sh "docker push ${imagerepo}/${imagename}:v${BUILD_NUMBER}"
         }
       }
@@ -40,15 +40,15 @@ pipeline {
       steps {
         withCredentials([usernamePassword(credentialsId: 'GitHubCredentials', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
           sh "rm -rf gitops-demo-deployment"
-          sh "git clone https://github.com/dinushchathurya/gitops-demo-deployment.git"
-          sh "cd gitops-demo-deployment"
-          dir('gitops-demo-deployment') {
+          sh "git clone https://github.com/Achref-dot-afk/k8s.git"
+          sh "cd k8s"
+          dir('k8s') {
             sh "sed -i 's/newTag.*/newTag: v${BUILD_NUMBER}/g' kustomize/overlays/*/*kustomization.yaml"
-            sh "git config user.email ci@dinush.com"
-            sh "git config user.name devops-bot"
-            sh "git add ${WORKSPACE}/gitops-demo-deployment/kustomize/overlays/*/*kustomization.yaml"
+            sh "git config user.email achref.habli@etudiant-enit.utm.tn"
+            sh "git config user.name Achref-dot-afk"
+            sh "git add ${WORKSPACE}/k8s/kustomize/overlays/*/*kustomization.yaml"
             sh "git commit -m 'Update image version to: ${BUILD_NUMBER}'"
-            sh"git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/dinushchathurya/gitops-demo-deployment.git HEAD:master -f"
+            sh"git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Achref-dot-afk/k8s.git HEAD:master -f"
           }
         }
       }
